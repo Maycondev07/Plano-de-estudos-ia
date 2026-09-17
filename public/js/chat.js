@@ -5,6 +5,11 @@ já enxergo suas matérias e os níveis mapeados por lá.`;
 
 const PAGINAS_PERMITIDAS = ["index.html", "plano.html", "flashcards.html", "foco.html", "perfil.html"];
 
+// Ajuste esse número pra bater com o limite diário (em tokens) do seu
+// provedor de IA — é só uma estimativa local, calculada a partir do "usage"
+// que a API retorna a cada resposta; não é o contador oficial do provedor.
+const DAILY_TOKEN_BUDGET = 200000;
+
 let state = {
   messages: [{ role: "assistant", content: WELCOME }],
   loading: false,
@@ -22,6 +27,7 @@ if (window.marked) {
 
   state.messages = Store.getChatHistorico() || state.messages;
   renderMessages();
+  renderTokenCounter();
 
   document.getElementById("send-btn").addEventListener("click", sendMessage);
   document.getElementById("input").addEventListener("keydown", (e) => {
@@ -30,7 +36,19 @@ if (window.marked) {
       sendMessage();
     }
   });
+  document.getElementById("clear-btn").addEventListener("click", clearChat);
 })();
+
+function clearChat() {
+  if (!confirm("Limpar esta conversa? O histórico do chat será apagado (o que já foi salvo no plano, flashcards etc. continua intacto).")) {
+    return;
+  }
+  state.messages = [{ role: "assistant", content: WELCOME }];
+  Store.setChatHistorico(state.messages);
+  hideBanner("error-banner");
+  hideBanner("plano-banner");
+  renderMessages();
+}
 
 async function sendMessage() {
   const input = document.getElementById("input");
@@ -41,6 +59,7 @@ async function sendMessage() {
   input.value = "";
   state.loading = true;
   hideBanner("error-banner");
+  hideBanner("plano-banner");
   renderMessages();
 
   try {
@@ -93,6 +112,10 @@ async function sendMessage() {
       const { texto, acoes } = extrairAcoes(data.reply);
       state.messages.push({ role: "assistant", content: texto });
       Store.setChatHistorico(state.messages);
+      checkForPlano(texto);
+      if (data.usage && data.usage.total_tokens) {
+        registrarTokensUsados(data.usage.total_tokens);
+      }
       if (acoes.length) {
         // não trava a resposta: executa em seguida, com feedback via toast
         executarAcoes(acoes);
@@ -195,6 +218,93 @@ async function executarAcoes(acoes) {
       showToast("Não consegui executar uma ação: " + err.message, "erro");
     }
   }
+}
+
+// ---------- Banner para salvar um plano de estudos gerado de uma vez ----------
+function checkForPlano(reply) {
+  const match = reply.match(/plano gerado:\s*([^\n]+)/i);
+  if (!match) return;
+  const itens = parsePlanoList(match[1]);
+  if (itens.length) showPlanoBanner(itens);
+}
+
+function parsePlanoList(texto) {
+  return texto
+    .split(";")
+    .map((pedaco) => {
+      const m = pedaco.trim().match(/^(.+?)\s*\(([^,]*),\s*(\d{4}-\d{2}-\d{2})\)$/);
+      if (!m) return null;
+      return { titulo: m[1].trim(), materia: m[2].trim(), data: m[3].trim() };
+    })
+    .filter(Boolean);
+}
+
+function showPlanoBanner(itens) {
+  const banner = document.getElementById("plano-banner");
+  if (!banner) return;
+  banner.style.display = "flex";
+
+  if (!currentUser) {
+    banner.querySelector("span").textContent =
+      `Montei um plano com ${itens.length} item(ns). Crie uma conta ou entre para salvá-lo de uma vez.`;
+    document.getElementById("plano-yes").textContent = "Entrar / Criar conta";
+    document.getElementById("plano-yes").onclick = () => {
+      window.location.href = "login.html?next=index.html";
+    };
+    document.getElementById("plano-no").onclick = () => hideBanner("plano-banner");
+    return;
+  }
+
+  banner.querySelector("span").textContent =
+    `Montei um plano com ${itens.length} item(ns). Quer salvar tudo de uma vez na página "Plano"?`;
+  document.getElementById("plano-yes").textContent = "Salvar plano";
+  document.getElementById("plano-yes").onclick = async () => {
+    try {
+      const existentes = await Store.getPlanoItens();
+      const chaveExistente = (i) => `${i.titulo.trim().toLowerCase()}|${i.data}`;
+      const existentesSet = new Set(existentes.map(chaveExistente));
+      const novos = itens.filter((i) => !existentesSet.has(chaveExistente(i)));
+
+      for (const item of novos) {
+        await Store.addPlanoItem({ titulo: item.titulo, materia: item.materia, data: item.data, concluido: false });
+      }
+
+      hideBanner("plano-banner");
+      if (novos.length) {
+        alert(`${novos.length} item(ns) salvo(s) no plano! Veja na página "Plano".`);
+      } else {
+        alert("Esses itens já estavam cadastrados no plano.");
+      }
+    } catch (err) {
+      showError("Não consegui salvar o plano: " + err.message);
+    }
+  };
+  document.getElementById("plano-no").onclick = () => hideBanner("plano-banner");
+}
+
+// ---------- Contador de tokens restantes hoje (estimativa local) ----------
+function getTokenUsageKey() {
+  const dia = new Date().toISOString().slice(0, 10);
+  return `professor_tokens_${currentUser ? currentUser.id : "visitante"}_${dia}`;
+}
+
+function getTokensUsadosHoje() {
+  const raw = localStorage.getItem(getTokenUsageKey());
+  return raw ? parseInt(raw, 10) || 0 : 0;
+}
+
+function registrarTokensUsados(qtd) {
+  const usados = getTokensUsadosHoje() + qtd;
+  localStorage.setItem(getTokenUsageKey(), String(usados));
+  renderTokenCounter();
+}
+
+function renderTokenCounter() {
+  const el = document.getElementById("token-counter");
+  if (!el) return;
+  const usados = getTokensUsadosHoje();
+  const restantes = Math.max(0, DAILY_TOKEN_BUDGET - usados);
+  el.textContent = `🪙 ${restantes.toLocaleString("pt-BR")} tokens restantes hoje (estimativa)`;
 }
 
 // ---------- Toasts (feedback rápido de ações) ----------

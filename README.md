@@ -18,7 +18,9 @@ e o plano de estudos.
   site (plano, flashcard, diário) exige login. A IA pode executar ações
   reais no site quando o usuário pede/confirma diretamente — adicionar ou
   concluir item do plano, criar flashcard, salvar entrada de diário, ou
-  navegar pra outra página — com feedback em toast.
+  navegar pra outra página — com feedback em toast. Renderiza Markdown de
+  verdade (negrito, listas, tabelas) e mostra, no canto inferior esquerdo,
+  uma estimativa local de tokens restantes no dia.
 - **Plano** (`plano.html`) — cronograma de estudos, organizado por dia
   (hoje, atrasados, próximos). Pode ser preenchido manualmente ou pelo chat.
   Exige login.

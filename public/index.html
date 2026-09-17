@@ -135,14 +135,58 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.35);
     }
     .toast.erro { border-left-color: var(--red); }
+
+    /* ---------- Barra de controles (limpar conversa) ---------- */
+    .controls-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 14px 40px 0;
+    }
+    .btn-clear {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink-dim);
+      padding: 6px 12px;
+      font-size: 12.5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-clear:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+    /* ---------- Contador discreto de tokens ---------- */
+    .token-counter {
+      position: fixed;
+      left: 14px;
+      bottom: 10px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-dim);
+      opacity: 0.6;
+      background: var(--panel);
+      padding: 3px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
   <div id="navbar" class="navbar"></div>
 
   <div class="chat-wrap" id="chat-wrap">
+    <div class="controls-bar">
+      <button class="btn-clear" id="clear-btn" title="Apaga só o histórico da conversa — o que já foi salvo no site continua">Limpar conversa</button>
+    </div>
+
     <div class="messages" id="messages"></div>
 
+    <div id="plano-banner" class="save-banner">
+      <span></span>
+      <div style="display:flex; gap:8px; flex-shrink:0">
+        <button class="btn btn-primary" id="plano-yes" style="padding:6px 12px; font-size:13px">Salvar</button>
+        <button class="btn" id="plano-no" style="padding:6px 12px; font-size:13px">Ignorar</button>
+      </div>
+    </div>
     <div id="error-banner" class="error-banner"></div>
 
     <div class="composer">
@@ -152,6 +196,7 @@
   </div>
 
   <div id="toast-stack"></div>
+  <div id="token-counter" class="token-counter" title="Estimativa local, não é o contador oficial do provedor de IA">🪙 calculando…</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
