@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professor — Flashcards</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="navbar" class="navbar"></div>
+
+  <div class="page">
+    <h1 class="page-title">Flashcards</h1>
+    <p class="page-subtitle" id="subtitle">
+      Revisão espaçada: os cards voltam a aparecer aqui no momento certo pra
+      fixar de verdade. Toque no card para virar.
+    </p>
+
+    <div id="revisao-area"></div>
+
+    <hr style="border-color:var(--line); margin:36px 0;" />
+
+    <h2 style="font-family:var(--serif); font-size:20px; margin:0 0 14px;">Adicionar flashcard</h2>
+    <div class="add-form" id="add-form">
+      <input type="text" id="nova-materia" placeholder="Matéria (opcional)" />
+      <input type="text" id="nova-frente" placeholder="Frente (pergunta)" />
+      <input type="text" id="novo-verso" placeholder="Verso (resposta)" />
+      <button class="btn btn-primary" id="add-btn">Adicionar</button>
+    </div>
+
+    <h2 style="font-family:var(--serif); font-size:20px; margin:28px 0 14px;">Todos os cards</h2>
+    <div id="lista-geral"><div class="empty-state">Carregando…</div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/authGate.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/flashcards.js"></script>
+</body>
+</html>

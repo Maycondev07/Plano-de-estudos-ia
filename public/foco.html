@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professor — Foco</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="navbar" class="navbar"></div>
+
+  <div class="page" style="max-width: 640px;">
+    <h1 class="page-title">Foco</h1>
+    <p class="page-subtitle">
+      Sessões curtas e cronometradas ajudam a manter a constância. Escolha a
+      duração, escreva a matéria (opcional) e comece.
+    </p>
+
+    <div id="foco-area" class="panel" style="padding: 28px;">
+      <div class="add-form" style="margin-bottom: 0;">
+        <input type="text" id="materia-sessao" placeholder="Matéria (opcional)" />
+        <select id="duracao-select">
+          <option value="25">25 min — foco</option>
+          <option value="50">50 min — foco longo</option>
+          <option value="5">5 min — pausa</option>
+          <option value="15">15 min — pausa longa</option>
+        </select>
+      </div>
+      <div class="foco-timer" id="foco-timer">25:00</div>
+      <div class="foco-controls">
+        <button class="btn btn-primary" id="iniciar-btn">Iniciar</button>
+        <button class="btn" id="parar-btn" style="display:none">Parar</button>
+      </div>
+    </div>
+
+    <h2 style="font-family:var(--serif); font-size:20px; margin:32px 0 14px;">Diário de estudo</h2>
+    <p class="page-subtitle" style="margin-bottom:14px;">
+      Uma linha já ajuda: o que você estudou, o que travou, como se sentiu.
+    </p>
+    <textarea id="diario-input" class="diario-textarea" style="width:100%; background:var(--panel-raised); border:1px solid var(--line); border-radius:4px; color:var(--ink); padding:12px 14px; font-size:14px; margin-bottom:10px;" placeholder="Escreva sua entrada de hoje…"></textarea>
+    <button class="btn btn-primary" id="salvar-diario-btn">Salvar entrada</button>
+
+    <h2 style="font-family:var(--serif); font-size:20px; margin:36px 0 14px;">Histórico</h2>
+    <div id="historico"><div class="empty-state">Carregando…</div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/authGate.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/foco.js"></script>
+</body>
+</html>
