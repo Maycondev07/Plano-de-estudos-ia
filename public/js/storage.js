@@ -53,6 +53,21 @@ const Store = (() => {
     return data;
   }
 
+  // ---------- Histórico de evolução das skills (tabela compartilhada — só leitura aqui) ----------
+  // Preenchida pelo Treineiro (mesmo gatilho que alimenta a árvore de skills
+  // por lá); usamos aqui só pra desenhar a mesma árvore/gráfico de evolução.
+  async function getSkillHistory() {
+    const { data, error } = await supabaseClient
+      .from("skill_history")
+      .select("*")
+      .order("criado_em", { ascending: true });
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return data;
+  }
+
   // ---------- Plano de estudos (itens do cronograma) ----------
   async function getPlanoItens() {
     const { data, error } = await supabaseClient
@@ -168,6 +183,7 @@ const Store = (() => {
     setPerfil,
     getMaterias,
     getSimulados,
+    getSkillHistory,
     getPlanoItens,
     addPlanoItem,
     updatePlanoItem,

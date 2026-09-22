@@ -8,9 +8,9 @@ e um diário de estudo.
 
 Mesma stack do Treineiro (HTML/CSS/JS puro, sem framework, servidor mínimo
 em Node para a chamada de IA) e — de propósito — o **mesmo projeto
-Supabase**, para os dois sites "conversarem": login único, e as matérias/
-níveis mapeados no Treineiro já chegam prontos aqui pra calibrar explicações
-e o plano de estudos.
+Supabase**, para os dois sites "conversarem": login único, e as matérias
+(com % de domínio e submatérias) mapeadas no Treineiro já chegam prontas
+aqui pra calibrar explicações e o plano de estudos.
 
 - **Início** (`index.html`) — chat com o Professor: explica conteúdo a
   fundo, tira dúvidas, monta plano de estudos e sugere flashcards a partir
@@ -32,9 +32,13 @@ e o plano de estudos.
   pausa) que registra a sessão ao terminar, e um diário de estudo em texto
   livre. Exige login.
 - **Perfil** (`perfil.html`) — estatísticas de estudo (plano concluído,
-  flashcards pendentes, minutos de foco). As matérias com nível e a árvore
-  de skills continuam no Perfil do Treineiro — como é a mesma conta, o
-  Professor já lê esses dados para calibrar o que ensina.
+  flashcards pendentes, minutos de foco), e também a **árvore de skills** e
+  o gráfico de **evolução** — os mesmos do Perfil do Treineiro (mesma
+  conta, mesmos dados), renderizados aqui por um componente compartilhado
+  entre os dois sites (`skillTree.js` + `skillTree.css`, arquivos idênticos
+  nos dois projetos). O Professor só lê esses dados pra calibrar o que
+  ensina — quem cadastra ou ajusta matérias/submatérias continua sendo
+  exclusivamente o Treineiro.
 
 Login não é obrigatório para conversar no chat, só para salvar dados —
 mesmo padrão do Treineiro.
@@ -148,9 +152,10 @@ public/
   plano.html                     → página Plano de estudos (cronograma)
   flashcards.html                 → página Flashcards (revisão espaçada)
   foco.html                       → página Foco (pomodoro + diário)
-  perfil.html                     → página Perfil (estatísticas de estudo)
+  perfil.html                     → página Perfil (estatísticas + árvore de skills + evolução)
   css/
     style.css                     → estilos compartilhados por todas as páginas
+    skillTree.css                  → estilos da árvore de skills + evolução (idêntico ao do Treineiro)
   js/
     supabaseClient.js             → conexão com o projeto Supabase (mesmo do Treineiro)
     auth.js                        → sessão do usuário (getOptionalUser, requireAuth) e logout
@@ -158,11 +163,12 @@ public/
     login.js                        → lógica da página de login/cadastro
     storage.js                     → camada de dados (fala com o Supabase)
     nav.js                          → barra de navegação + botão sair
+    skillTree.js                    → árvore de skills + gráfico de evolução (idêntico ao do Treineiro)
     chat.js                         → lógica do chat (Início)
     plano.js                        → lógica da página Plano
     flashcards.js                    → lógica da página Flashcards (SM-2 simplificado)
     foco.js                          → lógica da página Foco (timer + diário)
-    perfil.js                        → lógica do Perfil / estatísticas
+    perfil.js                        → lógica do Perfil / estatísticas / árvore de skills
 
 api/
   chat.js                        → função serverless da Vercel (chama lib/chatHandler.js)

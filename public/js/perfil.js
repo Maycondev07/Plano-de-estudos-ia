@@ -16,11 +16,13 @@
 
   Store.init(user.id);
 
-  const [perfil, planoItens, flashcards, sessoesFoco] = await Promise.all([
+  const [perfil, planoItens, flashcards, sessoesFoco, materias, skillHistory] = await Promise.all([
     Store.getPerfil(),
     Store.getPlanoItens(),
     Store.getFlashcards(),
     Store.getSessoesFoco(),
+    Store.getMaterias(),
+    Store.getSkillHistory(),
   ]);
 
   subtitle.textContent = perfil.nome
@@ -52,11 +54,47 @@
         <div class="stat-label">minutos de foco registrados</div>
       </div>
     </div>
-    <div class="panel" style="padding:18px 20px; font-size:13.5px; color:var(--ink-dim);">
-      As matérias com nível (fraco/médio/bom) e a árvore de skills ficam na
-      página <strong>Perfil do Treineiro</strong> — é a mesma conta, então o
-      que você mapear lá o Professor já usa aqui para calibrar explicações e
-      plano de estudos.
+
+    <div class="label" style="margin-top:38px">árvore de skills</div>
+    <p class="page-subtitle" style="margin-bottom:0">
+      A mesma árvore do Treineiro (mesma conta, mesmos dados) — cada matéria
+      pode ter submatérias, e o anel mostra o domínio real de 0% a 100%. O
+      Professor só usa essa árvore pra calibrar explicações e o plano de
+      estudos; quem cadastra ou ajusta matérias é sempre o Treineiro.
+    </p>
+    <div class="tree-legend">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div class="gradient-bar"></div>
+        <div class="gradient-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+      </div>
+    </div>
+    <div id="tree-wrap">
+      <svg id="tree-svg"></svg>
+      <div id="tree-nodes"></div>
+    </div>
+
+    <div class="label" style="margin-top:38px">evolução geral</div>
+    <p class="page-subtitle" style="margin-bottom:16px">
+      Média do domínio (0% a 100%) ao longo do tempo, somando matérias e
+      submatérias — atualizada pelo Treineiro sempre que uma matéria muda.
+    </p>
+    <div class="panel" style="padding:16px;">
+      <canvas id="evo-canvas" height="180"></canvas>
+      <div id="evo-empty" class="empty-state" style="display:none">
+        Ainda não há histórico suficiente. Cadastre matérias no Treineiro e vá
+        ajustando o domínio delas conforme evolui.
+      </div>
     </div>
   `;
+
+  const nomeUsuario = (perfil.nome || "Você").trim() || "Você";
+  SkillTree.renderSkillTree({
+    wrapId: "tree-wrap",
+    svgId: "tree-svg",
+    nodesId: "tree-nodes",
+    materias,
+    nomeUsuario,
+    emptyMensagem: "Nenhuma matéria cadastrada ainda. Mapeie suas matérias no Treineiro para ver a árvore aqui também.",
+  });
+  SkillTree.renderEvolucao({ canvasId: "evo-canvas", emptyId: "evo-empty", skillHistory });
 })();
